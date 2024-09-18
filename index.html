@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Extraterrestrial Radiation Calculator</title>
+    
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script>
-        function calculateRadiation() {
+        // Function to calculate extraterrestrial radiation
+        function calculateRadiation(dayOfYear, lat) {
             const Gsc = 0.0820; // Solar constant (MJ/m²/min)
-            let lat = parseFloat(document.getElementById("latitude").value);
-            let date = new Date(document.getElementById("date").value);
-            let dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
 
             // Calculate the solar declination (in radians)
             let declination = 23.45 * Math.sin((2 * Math.PI / 365) * (dayOfYear - 81)) * Math.PI / 180;
@@ -27,12 +29,71 @@
                 Math.cos(latRad) * Math.cos(declination) * Math.sin(omega)
             );
 
-            document.getElementById("result").innerText = `Extraterrestrial Radiation: ${Ra.toFixed(2)} MJ/m²/day`;
+            return Ra;
         }
+
+        // Function to generate the chart data
+        function generateChart() {
+            let ctx = document.getElementById('radiationChart').getContext('2d');
+
+            let latitudes = [-60, -30, 0, 30, 60]; // Example latitudes
+            let days = Array.from({ length: 365 }, (_, i) => i + 1); // Days from 1 to 365
+
+            let datasets = latitudes.map(lat => {
+                let data = days.map(day => calculateRadiation(day, lat));
+                return {
+                    label: `Latitude ${lat}°`,
+                    data: data,
+                    fill: false,
+                    borderColor: getRandomColor(),
+                    tension: 0.1
+                };
+            });
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days, // Days from 1 to 365
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Extraterrestrial Radiation vs Day of the Year for Different Latitudes'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Day of the Year'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Extraterrestrial Radiation (MJ/m²/day)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to generate random colors for the chart lines
+        function getRandomColor() {
+            return `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`;
+        }
+
+        window.onload = generateChart; // Generate chart on page load
     </script>
 </head>
 <body>
     <h1>Extraterrestrial Radiation Calculator</h1>
+
+    <h2>Enter Specific Data:</h2>
     <p>Enter your latitude and date to calculate the extraterrestrial radiation (Ra).</p>
 
     <label for="latitude">Latitude (in degrees): </label>
@@ -41,8 +102,25 @@
     <label for="date">Date: </label>
     <input type="date" id="date" required><br><br>
 
-    <button onclick="calculateRadiation()">Calculate</button>
+    <button onclick="showSpecificRadiation()">Calculate</button>
 
     <h2 id="result"></h2>
+
+    <script>
+        // Function to calculate and display specific extraterrestrial radiation for user input
+        function showSpecificRadiation() {
+            let lat = parseFloat(document.getElementById("latitude").value);
+            let date = new Date(document.getElementById("date").value);
+            let dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+
+            let Ra = calculateRadiation(dayOfYear, lat);
+            document.getElementById("result").innerText = `Extraterrestrial Radiation: ${Ra.toFixed(2)} MJ/m²/day`;
+        }
+    </script>
+
+    <!-- Add canvas element for the chart at the bottom -->
+    <h2>Extraterrestrial Radiation Chart for Different Latitudes</h2>
+    <canvas id="radiationChart" width="800" height="400"></canvas>
+
 </body>
 </html>
