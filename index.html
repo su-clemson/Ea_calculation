@@ -31,6 +31,14 @@
 
             return Ra;
         }
+        // Function to generate the Julian day (day of the year)
+        function getJulianDay(date) {
+            const start = new Date(date.getFullYear(), 0, 0);  // Start of the year
+            const diff = date - start;  // Difference in milliseconds
+            const oneDay = 1000 * 60 * 60 * 24;  // One day in milliseconds
+            const dayOfYear = Math.floor(diff / oneDay);  // Julian day (day of the year)
+            return dayOfYear;
+        }
 
         // Function to generate the chart data
         function generateChart() {
