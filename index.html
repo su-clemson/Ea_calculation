@@ -31,13 +31,26 @@
 
             return Ra;
         }
-        // Function to generate the Julian day (day of the year)
+        // Function to generate the Julian day (day of the year) considering leap and non-leap years
         function getJulianDay(date) {
-            const start = new Date(date.getFullYear(), 0, 0);  // Start of the year
+            const year = date.getFullYear();
+            const start = new Date(year, 0, 0);  // Start of the year (January 1st)
             const diff = date - start;  // Difference in milliseconds
             const oneDay = 1000 * 60 * 60 * 24;  // One day in milliseconds
-            const dayOfYear = Math.floor(diff / oneDay);  // Julian day (day of the year)
+
+            let dayOfYear = Math.floor(diff / oneDay);  // Julian day (day of the year)
+            
+            // If it's a leap year, adjust the day of the year accordingly
+            if (isLeapYear(year) && dayOfYear >= 60) {
+                dayOfYear += 1;  // Add one extra day for leap years after February 29th
+            }
+            
             return dayOfYear;
+        }
+
+        // Function to check if a year is a leap year
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
         }
 
         // Function to generate the chart data
