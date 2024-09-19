@@ -52,14 +52,6 @@
             return dayOfYear;
         }
 
-    // Adjust for leap year
-       if (isLeapYear(year) && dayOfYear >= 60) {
-        dayOfYear += 1;  // Add one extra day for leap years after February 29th
-    }
-
-    return dayOfYear;
-}
-
 
         // Function to check if a year is a leap year
         function isLeapYear(year) {
