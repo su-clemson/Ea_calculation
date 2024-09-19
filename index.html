@@ -37,12 +37,12 @@
         function getJulianDay(date) {
             const year = date.getFullYear();
          // Set the date to the start of the day (00:00:00)
-            const start = new Date(year, 1, 1);  // January 1st, 00:00:00
+            const start = new Date(year, 0, 1);  // January 1st, 00:00:00
             const diff = date.setHours(0, 0, 0, 0) - start.setHours(0, 0, 0, 0);  // Ensure time is 00:00 for both dates
 
             const oneDay = 1000 * 60 * 60 * 24;  // One day in milliseconds
 
-            let dayOfYear = Math.floor(diff / oneDay);  // Julian day (day of the year)
+            let dayOfYear = Math.floor(diff / oneDay) +1;  // Julian day (day of the year)
             
             // If it's a leap year, adjust the day of the year accordingly
             if (isLeapYear(year) && dayOfYear >= 60) {
