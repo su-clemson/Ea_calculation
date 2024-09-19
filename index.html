@@ -14,7 +14,7 @@
             const Gsc = 0.0820; // Solar constant (MJ/m²/min)
 
             // Calculate the solar declination (in radians)
-            let declination = 0.409 * Math.sin((2 * Math.PI / 365) * dayOfYear-1.39);
+            let declination = 0.409 * Math.sin((2 * Math.PI / 365) * dayOfYear - 1.39);
 
             // Calculate the inverse relative distance Earth-Sun (dr)
             let dr = 1 + 0.033 * Math.cos((2 * Math.PI / 365) * dayOfYear);
@@ -31,27 +31,24 @@
 
             return Ra;
         }
+
         // Function to generate the Julian day (day of the year) considering leap and non-leap years
-
-
         function getJulianDay(date) {
-            const year = date.getFullYear();
-         // Set the date to the start of the day (00:00:00)
-            const start = new Date(year, 0, 1);  // January 1st, 00:00:00
-            const diff = date.setHours(0, 0, 0, 0) - start.setHours(0, 0, 0, 0);  // Ensure time is 00:00 for both dates
+            // Ensure the date is set to midnight to avoid time discrepancies
+            date.setHours(0, 0, 0, 0);
 
+            // Start of the year at midnight
+            const start = new Date(date.getFullYear(), 0, 0, 0, 0, 0, 0);
+
+            // Calculate the difference in milliseconds
+            const diff = date - start;
+
+            // Convert milliseconds to days
             const oneDay = 1000 * 60 * 60 * 24;  // One day in milliseconds
+            let dayOfYear = Math.round(diff / oneDay) + 1;  // Use Math.round() and add 1 to count January 1st as day 1
 
-            let dayOfYear = Math.floor(diff / oneDay) +1;  // Julian day (day of the year)
-            
-            // If it's a leap year, adjust the day of the year accordingly
-            if (isLeapYear(year) && dayOfYear >= 60) {
-                dayOfYear += 1;  // Add one extra day for leap years after February 29th
-            }
-            
             return dayOfYear;
         }
-
 
         // Function to check if a year is a leap year
         function isLeapYear(year) {
@@ -62,7 +59,7 @@
         function generateChart() {
             let ctx = document.getElementById('radiationChart').getContext('2d');
 
-            let latitudes = [ 0, 10, 20, 30, 40]; // Example latitudes
+            let latitudes = [0, 10, 20, 30, 40]; // Example latitudes
             let days = Array.from({ length: 365 }, (_, i) => i + 1); // Days from 1 to 365
 
             let datasets = latitudes.map(lat => {
@@ -87,7 +84,7 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Extraterrestrial Radiation vs Day of the Year for Different Latitudes_northern hemisphere'
+                            text: 'Extraterrestrial Radiation vs Day of the Year for Different Latitudes (Northern Hemisphere)'
                         }
                     },
                     scales: {
@@ -137,8 +134,11 @@
         function showSpecificRadiation() {
             let lat = parseFloat(document.getElementById("latitude").value);
             let date = new Date(document.getElementById("date").value);
-            let dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+            
+            // Get Julian day
+            let dayOfYear = getJulianDay(date);
 
+            // Calculate extraterrestrial radiation (Ra)
             let Ra = calculateRadiation(dayOfYear, lat);
             document.getElementById("result").innerText = `Extraterrestrial Radiation: ${Ra.toFixed(2)} MJ/m²/day`;
         }
