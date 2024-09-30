@@ -60,7 +60,7 @@
             let ctx = document.getElementById('radiationChart').getContext('2d');
 
             let latitudes = [0, 10, 20, 30, 40]; // Example latitudes
-            let days = Array.from({ length: 365 }, (_, i) => i + 1); // Days from 1 to 365
+            let days = Array.from({ length: 365 }, (_, i) => i + 1); // Days from 1 to 365 (non-leap year)
 
             let datasets = latitudes.map(lat => {
                 let data = days.map(day => calculateRadiation(day, lat));
@@ -107,7 +107,50 @@
 
         // Function to generate random colors for the chart lines
         function getRandomColor() {
-            return `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`;
+            return `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`; 
+        }
+
+        // Function to calculate and display specific extraterrestrial radiation for user input
+        function showSpecificRadiation() {
+            let lat = parseFloat(document.getElementById("latitude").value);
+            let date = new Date(document.getElementById("date").value);
+            
+            // Get Julian day
+            let dayOfYear = getJulianDay(date);
+
+            // Calculate extraterrestrial radiation (Ra)
+            let Ra = calculateRadiation(dayOfYear, lat);
+            document.getElementById("result").innerText = `Extraterrestrial Radiation: ${Ra.toFixed(2)} MJ/m²/day`;
+        }
+
+        // Function to download the radiation data for the selected latitude
+        function downloadData() {
+            let lat = parseFloat(document.getElementById("latitude").value);
+            if (isNaN(lat)) {
+                alert('Please enter a valid latitude');
+                return;
+            }
+
+            let date = new Date(document.getElementById("date").value);
+            let year = date.getFullYear();
+            let isLeap = isLeapYear(year);
+
+            let days = Array.from({ length: isLeap ? 366 : 365 }, (_, i) => i + 1);
+            let data = days.map(day => {
+                let Ra = calculateRadiation(day, lat);
+                return `${day},${Ra.toFixed(2)}`;
+            });
+
+            let csvContent = `data:text/csv;charset=utf-8,Day,Extraterrestrial Radiation (MJ/m²/day)\n${data.join("\n")}`;
+
+            // Create a link and trigger the download
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `radiation_data_latitude_${lat}_year_${year}.csv`);
+            document.body.appendChild(link); // Required for Firefox
+            link.click();
+            document.body.removeChild(link);
         }
 
         window.onload = generateChart; // Generate chart on page load
@@ -126,23 +169,9 @@
     <input type="date" id="date" required><br><br>
 
     <button onclick="showSpecificRadiation()">Calculate</button>
+    <button onclick="downloadData()">Download Yearly Data</button>
 
     <h2 id="result"></h2>
-
-    <script>
-        // Function to calculate and display specific extraterrestrial radiation for user input
-        function showSpecificRadiation() {
-            let lat = parseFloat(document.getElementById("latitude").value);
-            let date = new Date(document.getElementById("date").value);
-            
-            // Get Julian day
-            let dayOfYear = getJulianDay(date);
-
-            // Calculate extraterrestrial radiation (Ra)
-            let Ra = calculateRadiation(dayOfYear, lat);
-            document.getElementById("result").innerText = `Extraterrestrial Radiation: ${Ra.toFixed(2)} MJ/m²/day`;
-        }
-    </script>
 
     <!-- Add canvas element for the chart at the bottom -->
     <h2>Extraterrestrial Radiation Chart for Different Latitudes</h2>
@@ -150,3 +179,4 @@
 
 </body>
 </html>
+
